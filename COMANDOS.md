@@ -8,4 +8,4 @@
 ## COMANDOS ADICIONAIS:
 
 ### Verificar o estado dos arquivos: git status
-### Visualizar o histórico de commits: git log --oneline
+### Visualizar o histórico de commits: git log --oneline'
