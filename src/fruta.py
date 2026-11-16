@@ -38,6 +38,14 @@ class Fruta:
         # Aplica a gravidade à velocidade vertical
         self.velocidade_y+=self.gravidade
 
+    # Verifica se o mouse está sobre a fruta
+    def verificar_corte(self, pos_mouse):
+        mouse_x, mouse_y = pos_mouse
+
+        distancia=((mouse_x-self.x)**2+(mouse_y-self.y)**2)
+
+        return distancia <= self.raio**2
+
     # Desenha a fruta na tela
     def desenhar(self, tela):
         pygame.draw.circle(tela,(255, 0, 0),(int(self.x), int(self.y)),self.raio)

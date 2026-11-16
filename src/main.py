@@ -49,6 +49,13 @@ while rodando:
         if evento.type==pygame.QUIT:
             rodando=False
 
+        # DETECÇÃO DE CORTE COM O MOUSE
+        if evento.type == pygame.MOUSEMOTION:
+            # Verifica se o mouse passou sobre alguma fruta
+            for fruta in frutas:
+                if fruta.verificar_corte(evento.pos):
+                    frutas.remove(fruta)
+
         # Gera uma nova fruta
         if evento.type==EVENTO_FRUTA:
 
@@ -71,7 +78,7 @@ while rodando:
     tela.fill((30, 30, 30))
 
     # ATUALIZAÇÃO E DESENHO DAS FRUTAS
-    for fruta in frutas[:]:
+    for fruta in frutas:
         # Atualiza o movimento
         fruta.atualizar()
 
