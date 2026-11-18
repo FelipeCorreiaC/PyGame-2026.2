@@ -94,13 +94,18 @@ while rodando:
         # Remove frutas que saíram pela parte inferior
         if fruta.y-fruta.raio > ALTURA:
             frutas.remove(fruta)
+            jogo.perder_vida()
 
     # Fonte usada na interface
     fonte = pygame.font.SysFont("Arial", 36)
 
     # EXIBIÇÃO DA PONTUAÇÃO
     texto_pontos = fonte.render(f"fruta.png: {jogo.pontuacao}",True,(255, 255, 255))
-    tela.blit(texto_pontos, (580, 30))
+    tela.blit(texto_pontos, (30, 60))
+
+    # EXIBIÇÃO DAS VIDAS
+    texto_vidas = fonte.render(f"vidas.png: {jogo.vidas}",True,(255, 255, 255))
+    tela.blit(texto_vidas, (1090, 60))
 
     # ATUALIZAÇÃO DA JANELA
     pygame.display.flip()
