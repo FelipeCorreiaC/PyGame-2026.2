@@ -2,11 +2,14 @@
 import pygame
 import random
 
-# Importa a classe Fruta do arquivo fruta.py
+# Importa as classes
 from fruta import Fruta
+from jogo import Jogo
 
 # Inicializa os módulos do Pygame
 pygame.init()
+# Objeto que representa o estado da partida
+jogo = Jogo()
 
 # Define as dimensões da janela
 LARGURA=1280
@@ -56,6 +59,9 @@ while rodando:
                 if fruta.verificar_corte(evento.pos):
                     frutas.remove(fruta)
 
+                    # Adiciona 10 pontos pela fruta cortada
+                    jogo.adicionar_pontos(1)
+
         # Gera uma nova fruta
         if evento.type==EVENTO_FRUTA:
 
@@ -88,6 +94,13 @@ while rodando:
         # Remove frutas que saíram pela parte inferior
         if fruta.y-fruta.raio > ALTURA:
             frutas.remove(fruta)
+
+    # Fonte usada na interface
+    fonte = pygame.font.SysFont("Arial", 36)
+
+    # EXIBIÇÃO DA PONTUAÇÃO
+    texto_pontos = fonte.render(f"fruta.png: {jogo.pontuacao}",True,(255, 255, 255))
+    tela.blit(texto_pontos, (580, 30))
 
     # ATUALIZAÇÃO DA JANELA
     pygame.display.flip()
