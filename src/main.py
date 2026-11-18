@@ -5,6 +5,7 @@ import random
 # Importa as classes
 from fruta import Fruta
 from jogo import Jogo
+from bomba import Bomba
 
 # Inicializa os módulos do Pygame
 pygame.init()
@@ -16,17 +17,26 @@ LARGURA=1280
 ALTURA=720
 
 # LISTA DE FRUTAS
-# Armazena todas as frutas ativas na tela
+# Armazena todas as frutas ou bombas ativas na tela
 frutas=[]
+bombas=[]
 
 # CONFIGURAÇÃO DO TEMPORIZADOR
-# Controla a geração aleatória das frutas.
-# Evento personalizado para gerar frutas
+# Controla a geração aleatória das frutas e bombas.
+# Evento personalizado para gerar frutas e bombas.
 EVENTO_FRUTA=pygame.USEREVENT+1
+EVENTO_BOMBA = pygame.USEREVENT + 2
 
-# Intervalo mínimo e máximo (milissegundos)
+# Intervalo mínimo e máximo (milissegundos) (frutas)
 TEMPO_MIN=500
 TEMPO_MAX=1800
+
+# Intervalo mínimo e máximo (milissegundos) (bombas)
+TEMPO_BOMBA_MIN = 3000
+TEMPO_BOMBA_MAX = 6000
+
+# Agenda a primeira bomba
+pygame.time.set_timer(EVENTO_BOMBA,random.randint(TEMPO_BOMBA_MIN, TEMPO_BOMBA_MAX),loops=1)
 
 # Agenda a primeira fruta
 pygame.time.set_timer(EVENTO_FRUTA,random.randint(TEMPO_MIN, TEMPO_MAX),loops=1)
@@ -52,6 +62,16 @@ while rodando:
         if evento.type==pygame.QUIT:
             rodando=False
 
+        if evento.type == EVENTO_BOMBA and not jogo.game_over:
+            x = random.randint(200, LARGURA - 200)
+
+            bomba = Bomba(x, ALTURA + 30)
+            bombas.append(bomba)
+
+            proximo_tempo = random.randint(TEMPO_BOMBA_MIN,TEMPO_BOMBA_MAX)
+
+            pygame.time.set_timer(EVENTO_BOMBA,proximo_tempo,loops=1)
+
         # DETECÇÃO DE CORTE COM O MOUSE
         if evento.type == pygame.MOUSEMOTION and not jogo.game_over:
             # Verifica se o mouse passou sobre alguma fruta
@@ -62,15 +82,11 @@ while rodando:
                     # Adiciona 10 pontos pela fruta cortada
                     jogo.adicionar_pontos(1)
 
-                    if not jogo.game_over:
-
-                        for fruta in frutas:
-                            fruta.atualizar()
-                            fruta.desenhar(tela)
-
-                            if fruta.y - fruta.raio > ALTURA:
-                                frutas.remove(fruta)
-                                jogo.perder_vida()
+            # Verifica as bombas
+            for bomba in bombas:
+                if bomba.verificar_colisao(evento.pos):
+                    bombas.remove(bomba)
+                    jogo.game_over = True
 
         # Gera uma nova fruta
         if evento.type==EVENTO_FRUTA and not jogo.game_over:
@@ -105,6 +121,15 @@ while rodando:
         if fruta.y-fruta.raio > ALTURA:
             frutas.remove(fruta)
             jogo.perder_vida()
+
+    # ATUALIZAÇÃO E DESENHO DAS BOMBAS
+    for bomba in bombas:
+        bomba.atualizar()
+        bomba.desenhar(tela)
+
+        # Se a bomba cair, apenas remove
+        if bomba.y - bomba.raio > ALTURA:
+            bombas.remove(bomba)
 
     # Fonte usada na interface
     fonte = pygame.font.SysFont("Arial", 36)
