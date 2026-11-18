@@ -53,7 +53,7 @@ while rodando:
             rodando=False
 
         # DETECÇÃO DE CORTE COM O MOUSE
-        if evento.type == pygame.MOUSEMOTION:
+        if evento.type == pygame.MOUSEMOTION and not jogo.game_over:
             # Verifica se o mouse passou sobre alguma fruta
             for fruta in frutas:
                 if fruta.verificar_corte(evento.pos):
@@ -62,8 +62,18 @@ while rodando:
                     # Adiciona 10 pontos pela fruta cortada
                     jogo.adicionar_pontos(1)
 
+                    if not jogo.game_over:
+
+                        for fruta in frutas:
+                            fruta.atualizar()
+                            fruta.desenhar(tela)
+
+                            if fruta.y - fruta.raio > ALTURA:
+                                frutas.remove(fruta)
+                                jogo.perder_vida()
+
         # Gera uma nova fruta
-        if evento.type==EVENTO_FRUTA:
+        if evento.type==EVENTO_FRUTA and not jogo.game_over:
 
             # Sorteia a posição horizontal
             x=random.randint(200, LARGURA - 200)
@@ -99,13 +109,21 @@ while rodando:
     # Fonte usada na interface
     fonte = pygame.font.SysFont("Arial", 36)
 
-    # EXIBIÇÃO DA PONTUAÇÃO
-    texto_pontos = fonte.render(f"fruta.png: {jogo.pontuacao}",True,(255, 255, 255))
-    tela.blit(texto_pontos, (30, 60))
+    if not jogo.game_over:
+        # EXIBIÇÃO DA PONTUAÇÃO
+        texto_pontos = fonte.render(f"fruta.png: {jogo.pontuacao}",True,(255, 255, 255))
+        tela.blit(texto_pontos, (30, 60))
 
-    # EXIBIÇÃO DAS VIDAS
-    texto_vidas = fonte.render(f"vidas.png: {jogo.vidas}",True,(255, 255, 255))
-    tela.blit(texto_vidas, (1090, 60))
+        # EXIBIÇÃO DAS VIDAS
+        texto_vidas = fonte.render(f"vidas.png: {jogo.vidas}",True,(255, 255, 255))
+        tela.blit(texto_vidas, (1090, 60))
+    else:
+        # Exibe apenas as informações de Game Over
+        texto_game_over = fonte.render("GAME OVER",True,(255, 255, 255))
+        texto_final = fonte.render(f"Pontuação final: {jogo.pontuacao}",True,(255, 255, 255))
+
+        tela.blit(texto_game_over,texto_game_over.get_rect(center=(LARGURA // 2, ALTURA // 2)))
+        tela.blit(texto_final,texto_final.get_rect(center=(LARGURA // 2, ALTURA // 2 + 50)))
 
     # ATUALIZAÇÃO DA JANELA
     pygame.display.flip()
