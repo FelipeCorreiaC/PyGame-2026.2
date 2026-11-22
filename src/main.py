@@ -21,6 +21,8 @@ inicio_tremida=0
 DURACAO_TREMIDA=200
 INTENSIDADE_TREMIDA=8
 CHANCE_TREMIDA=0.30
+DURACAO_TREMIDA_BOMBA=800
+INTENSIDADE_TREMIDA_BOMBA=15
 
 # Dimensões da janela
 LARGURA=1280
@@ -235,10 +237,20 @@ while rodando:
                         tremendo=True
                         inicio_tremida=pygame.time.get_ticks()
 
+                        intensidade_atual=INTENSIDADE_TREMIDA
+                        duracao_atual=DURACAO_TREMIDA
+
             # COLISÃO COM BOMBAS
             for bomba in bombas[:]:
 
                 if bomba.verificar_colisao(evento.pos):
+
+                    # Tremida forte causada pela explosão
+                    tremendo=True
+                    inicio_tremida=pygame.time.get_ticks()
+
+                    intensidade_atual=INTENSIDADE_TREMIDA_BOMBA
+                    duracao_atual=DURACAO_TREMIDA_BOMBA
 
                     # Inicia o estado de explosão
                     bomba_explodiu=True
@@ -362,9 +374,9 @@ while rodando:
     if tremendo:
         tempo_tremida=pygame.time.get_ticks()-inicio_tremida
 
-        if tempo_tremida < DURACAO_TREMIDA:
-            offset_x=random.randint(-INTENSIDADE_TREMIDA,INTENSIDADE_TREMIDA)
-            offset_y=random.randint(-INTENSIDADE_TREMIDA,INTENSIDADE_TREMIDA)
+        if tempo_tremida < duracao_atual:
+            offset_x=random.randint(-intensidade_atual,intensidade_atual)
+            offset_y=random.randint(-intensidade_atual,intensidade_atual)
 
         else:
             tremendo=False
