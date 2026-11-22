@@ -38,7 +38,7 @@ DURACAO_MAX_EXPLOSAO=2000
 EVENTO_FRUTA=pygame.USEREVENT+1
 EVENTO_BOMBA=pygame.USEREVENT+2
 
-# Intervalo mínimo e máximo (milissegundos) (frutas)
+# Intervalo mínimo e máximo inicial (milissegundos) (frutas)
 TEMPO_MIN=500
 TEMPO_MAX=1800
 
@@ -198,8 +198,16 @@ while rodando:
             # Adiciona à lista de frutas
             frutas.append(fruta)
 
-            # Sorteia o intervalo até a próxima fruta
-            proximo_tempo=random.randint(TEMPO_MIN,TEMPO_MAX)
+            # Reduz a espera máxima conforme a pontuação, mantendo o mínimo
+            if jogo.pontuacao>=20:
+                tempo_max_fruta=1200
+            elif jogo.pontuacao>=10:
+                tempo_max_fruta=1500
+            else:
+                tempo_max_fruta=TEMPO_MAX
+
+            # Aplica a dificuldade ao agendar a próxima fruta
+            proximo_tempo=random.randint(TEMPO_MIN,tempo_max_fruta)
 
             # Agenda a próxima geração
             pygame.time.set_timer(
