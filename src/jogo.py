@@ -1,7 +1,10 @@
 # Classe responsável por controlar o estado geral da partida.
 class Jogo:
     def __init__(self):
-        # Pontuação inicial
+        self.reiniciar()
+
+    # Restaura os valores iniciais da partida
+    def reiniciar(self):
         self.pontuacao=0
         self.vidas=3
         self.game_over=False

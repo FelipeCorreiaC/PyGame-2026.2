@@ -56,11 +56,19 @@ rodando=True
 
 # LOOP PRINCIPAL DO JOGO
 while rodando:
+    # Guarda o pedido de reinício até terminar os eventos deste quadro
+    reiniciar_solicitado = False
+
     # PROCESSAMENTO DE EVENTOS
     for evento in pygame.event.get():
         # Fecha o jogo
         if evento.type==pygame.QUIT:
             rodando=False
+
+        # A tecla R só solicita o reinício depois do game over
+        if evento.type == pygame.KEYDOWN and jogo.game_over:
+            if evento.key == pygame.K_r:
+                reiniciar_solicitado = True
 
         if evento.type == EVENTO_BOMBA and not jogo.game_over:
             x = random.randint(200, LARGURA - 200)
@@ -106,6 +114,22 @@ while rodando:
 
             # Agenda a próxima geração
             pygame.time.set_timer(EVENTO_FRUTA,proximo_tempo,loops=1)
+
+    # REINÍCIO DA PARTIDA
+    # Os eventos antigos já foram processados antes de liberar a nova partida
+    if reiniciar_solicitado and rodando:
+        # Cancela lançamentos da partida anterior e limpa os que estavam na fila
+        pygame.time.set_timer(EVENTO_FRUTA, 0)
+        pygame.time.set_timer(EVENTO_BOMBA, 0)
+        pygame.event.clear([EVENTO_FRUTA, EVENTO_BOMBA])
+
+        frutas.clear()
+        bombas.clear()
+        jogo.reiniciar()
+
+        # Agenda um novo lançamento de cada tipo a partir deste momento
+        pygame.time.set_timer(EVENTO_FRUTA, random.randint(TEMPO_MIN, TEMPO_MAX), loops=1)
+        pygame.time.set_timer(EVENTO_BOMBA, random.randint(TEMPO_BOMBA_MIN, TEMPO_BOMBA_MAX), loops=1)
 
     # LIMPEZA DA TELA
     tela.fill((30, 30, 30))
@@ -156,9 +180,11 @@ while rodando:
         # Exibe apenas as informações de Game Over
         texto_game_over = fonte.render("GAME OVER",True,(255, 255, 255))
         texto_final = fonte.render(f"Pontuação final: {jogo.pontuacao}",True,(255, 255, 255))
+        texto_reiniciar = fonte.render("Pressione R para jogar novamente",True,(255, 255, 255))
 
         tela.blit(texto_game_over,texto_game_over.get_rect(center=(LARGURA // 2, ALTURA // 2)))
         tela.blit(texto_final,texto_final.get_rect(center=(LARGURA // 2, ALTURA // 2 + 50)))
+        tela.blit(texto_reiniciar,texto_reiniciar.get_rect(center=(LARGURA // 2, ALTURA // 2 + 100)))
 
     # ATUALIZAÇÃO DA JANELA
     pygame.display.flip()
