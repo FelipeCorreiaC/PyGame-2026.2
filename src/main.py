@@ -106,6 +106,10 @@ rodando=True
 # Mostra as instruções antes de começar a primeira partida
 tela_inicial=True
 
+# RASTRO DO MOUSE
+rastro_mouse=[]
+TAMANHO_RASTRO=10
+
 # LOOP PRINCIPAL DO JOGO
 while rodando:
 
@@ -148,6 +152,12 @@ while rodando:
         # DETECÇÃO DE CORTE COM O MOUSE
         # Bloqueada assim que uma bomba explode
         if evento.type==pygame.MOUSEMOTION and not tela_inicial and not jogo.game_over and not bomba_explodiu:
+            # Adiciona a posição atual ao rastro do mouse
+            rastro_mouse.append(evento.pos)
+
+            # Mantém apenas as últimas posições
+            if len(rastro_mouse) > TAMANHO_RASTRO:
+                rastro_mouse.pop(0)
 
             # Verifica se o mouse passou sobre alguma fruta
             for fruta in frutas[:]:
@@ -260,6 +270,16 @@ while rodando:
     # DESENHA O FUNDO
     tela.blit(fundo,(0,0))
 
+    # DESENHA O RASTRO DO MOUSE
+    if len(rastro_mouse) > 1:
+        pygame.draw.lines(
+            tela,
+            (255,255,255),
+            False,
+            rastro_mouse,
+            6
+        )
+
     # ATUALIZAÇÃO DOS OBJETOS
     if not tela_inicial and not jogo.game_over:
 
@@ -311,6 +331,7 @@ while rodando:
 
             if len(explosoes)==0 or tempo_passado>=DURACAO_MAX_EXPLOSAO:
                 explosoes.clear()
+                rastro_mouse.clear()
                 jogo.game_over=True
 
     # DESENHO DOS OBJETOS
