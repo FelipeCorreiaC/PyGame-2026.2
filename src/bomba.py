@@ -34,6 +34,14 @@ class Bomba:
         # Escolhe o movimento
         self.movimento=random.choice(["vertical", "parabolico"])
 
+        # Define a rotação da bomba
+        self.angulo=0
+        self.velocidade_rotacao=random.uniform(-4,4)
+
+        # Evita rotações muito lentas
+        while -1 < self.velocidade_rotacao < 1:
+            self.velocidade_rotacao=random.uniform(-4,4)
+
         if self.movimento == "vertical":
             self.velocidade_x=0
         else:
@@ -48,9 +56,20 @@ class Bomba:
 
         self.velocidade_y+=self.gravidade
 
+        # Atualiza a rotação
+        self.angulo+=self.velocidade_rotacao
+
     def desenhar(self, tela):
-        retangulo=self.imagem.get_rect(center=(int(self.x),int(self.y)))
-        tela.blit(self.imagem,retangulo)
+        imagem_rotacionada=pygame.transform.rotate(
+            self.imagem,
+            self.angulo
+        )
+
+        retangulo=imagem_rotacionada.get_rect(
+            center=(int(self.x),int(self.y))
+        )
+
+        tela.blit(imagem_rotacionada,retangulo)
 
     def verificar_colisao(self, pos_mouse):
         mouse_x, mouse_y=pos_mouse

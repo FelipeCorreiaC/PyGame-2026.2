@@ -43,6 +43,14 @@ class Fruta:
             self.imagem_cortada,
             (int(self.raio*2.4),int(self.raio*2.4))
         )
+
+        # Define a rotação da fruta
+        self.angulo=0
+        self.velocidade_rotacao=random.uniform(-4,4)
+
+        # Evita rotações muito lentas
+        while -1 < self.velocidade_rotacao < 1:
+            self.velocidade_rotacao=random.uniform(-4,4)
         
         # Controla se a fruta já foi cortada
         self.cortada=False
@@ -72,6 +80,8 @@ class Fruta:
         # Aplica a gravidade à velocidade vertical
         self.velocidade_y+=self.gravidade
 
+        self.angulo+=self.velocidade_rotacao
+
     # Verifica se o mouse está sobre a fruta
     def verificar_corte(self, pos_mouse):
         mouse_x, mouse_y = pos_mouse
@@ -91,5 +101,14 @@ class Fruta:
         else:
             imagem=self.imagem
 
-        retangulo=imagem.get_rect(center=(int(self.x),int(self.y)))
-        tela.blit(imagem,retangulo)
+        # Rotaciona a imagem
+        imagem_rotacionada=pygame.transform.rotate(
+            imagem,
+            self.angulo
+        )
+
+        retangulo=imagem_rotacionada.get_rect(
+            center=(int(self.x),int(self.y))
+        )
+
+        tela.blit(imagem_rotacionada,retangulo)
