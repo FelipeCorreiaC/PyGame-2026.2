@@ -1,4 +1,4 @@
-# Fruit Frenzy
+# Jogo das Frutas
 
 Membros: Felipe Correia da Costa, Thiago Felipe Alves de Araujo, Giovane Bruscato Bortoluzzo
 
@@ -14,7 +14,7 @@ Após instalar as dependências descritas abaixo, execute o arquivo principal do
 
 ## Descrição:
 
-Fruit Frenzy é um jogo desenvolvido em Python utilizando a biblioteca Pygame, inspirado na mecânica de jogos como Fruit Ninja.
+Jogo das Frutas é um jogo desenvolvido em Python utilizando a biblioteca Pygame, inspirado na mecânica de jogos como Fruit Ninja.
 
 O objetivo do jogador é cortar as frutas que aparecem na tela utilizando o movimento do mouse, acumulando pontos e evitando deixar frutas caírem.
 
