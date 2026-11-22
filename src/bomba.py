@@ -1,13 +1,32 @@
 import pygame
 import random
+import os
+
+# Caminho para a pasta de imagens
+CAMINHO_IMAGES=os.path.join(os.path.dirname(__file__), "..", "assets", "images", "sprites_bombas")
+
+# Lista com as variações de bombas
+SPRITES_BOMBAS=[
+    os.path.join("fire", "frame_1.png"),
+    os.path.join("iron", "frame_1.png"),
+    os.path.join("lightning", "frame_1.png"),
+    os.path.join("shadow", "frame_1.png")
+]
 
 class Bomba:
     def __init__(self, x, y):
         self.x=x
         self.y=y
 
-        self.raio=30
+        self.raio=random.randint(50, 60)
         self.gravidade=0.5
+
+        # Escolhe aleatoriamente o sprite da bomba
+        sprite=random.choice(SPRITES_BOMBAS)
+        caminho_sprite=os.path.join(CAMINHO_IMAGES, sprite)
+
+        self.imagem=pygame.image.load(caminho_sprite).convert_alpha()
+        self.imagem=pygame.transform.scale(self.imagem,(self.raio*2,self.raio*2))
 
         # Velocidade vertical
         self.velocidade_y=random.uniform(-23, -19)
@@ -30,11 +49,8 @@ class Bomba:
         self.velocidade_y+=self.gravidade
 
     def desenhar(self, tela):
-        # Bomba representada temporariamente por um círculo preto
-        pygame.draw.circle(tela,(0, 0, 0),(int(self.x), int(self.y)),self.raio)
-
-        # Contorno branco para enxergarmos no fundo escuro
-        pygame.draw.circle(tela,(255, 255, 255),(int(self.x), int(self.y)),self.raio,2)
+        retangulo=self.imagem.get_rect(center=(int(self.x),int(self.y)))
+        tela.blit(self.imagem,retangulo)
 
     def verificar_colisao(self, pos_mouse):
         mouse_x, mouse_y=pos_mouse

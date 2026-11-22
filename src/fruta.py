@@ -1,6 +1,18 @@
 # IMPORTAÇÃO DAS BIBLIOTECAS
 import pygame
 import random
+import os
+
+# Caminho para a pasta de imagens
+CAMINHO_IMAGES=os.path.join(os.path.dirname(__file__), "..", "assets", "images", "sprites_frutas")
+
+# Lista com os sprites das frutas
+SPRITES_FRUTAS=[
+    ("green_pear.png", "green_pear_splited.png"),
+    ("lemon_slice.png", "limon_slice_splited.png"),
+    ("pineapple.png", "pineapple_splited.png"),
+    ("watermelon.png", "watermelon_splited.png")
+]
 
 # CLASSE FRUTA
 class Fruta:
@@ -10,8 +22,30 @@ class Fruta:
         self.y=y
 
         # Define o tamanho e a gravidade
-        self.raio=30
+        self.raio=random.randint(50, 60)
         self.gravidade=0.5
+
+        # Escolhe aleatoriamente o sprite da fruta
+        # Escolhe aleatoriamente o sprite da fruta
+        sprite, sprite_cortado=random.choice(SPRITES_FRUTAS)
+
+        caminho_sprite=os.path.join(CAMINHO_IMAGES, sprite)
+        caminho_sprite_cortado=os.path.join(CAMINHO_IMAGES, sprite_cortado)
+
+        self.imagem=pygame.image.load(caminho_sprite).convert_alpha()
+        self.imagem=pygame.transform.scale(
+            self.imagem,
+            (self.raio*2,self.raio*2)
+        )
+
+        self.imagem_cortada=pygame.image.load(caminho_sprite_cortado).convert_alpha()
+        self.imagem_cortada=pygame.transform.scale(
+            self.imagem_cortada,
+            (int(self.raio*2.4),int(self.raio*2.4))
+        )
+        
+        # Controla se a fruta já foi cortada
+        self.cortada=False
 
         # Velocidade vertical aleatória
         self.velocidade_y=random.uniform(-23, -19)
@@ -46,6 +80,16 @@ class Fruta:
 
         return distancia <= self.raio**2
 
+    # Altera a fruta para o estado cortado
+    def cortar(self):
+        self.cortada=True
+
     # Desenha a fruta na tela
     def desenhar(self, tela):
-        pygame.draw.circle(tela,(255, 0, 0),(int(self.x), int(self.y)),self.raio)
+        if self.cortada:
+            imagem=self.imagem_cortada
+        else:
+            imagem=self.imagem
+
+        retangulo=imagem.get_rect(center=(int(self.x),int(self.y)))
+        tela.blit(imagem,retangulo)
