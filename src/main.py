@@ -15,6 +15,13 @@ pygame.init()
 # Objeto responsável pelo estado da partida
 jogo=Jogo()
 
+# TREMIDA DA TELA
+tremendo=False
+inicio_tremida=0
+DURACAO_TREMIDA=200
+INTENSIDADE_TREMIDA=8
+CHANCE_TREMIDA=0.30
+
 # Dimensões da janela
 LARGURA=1280
 ALTURA=720
@@ -94,6 +101,20 @@ fundo=pygame.image.load(CAMINHO_FUNDO).convert()
 
 # Ajusta o fundo para preencher toda a janela
 fundo=pygame.transform.scale(fundo,(LARGURA,ALTURA))
+
+# IMAGEM DE FUNDO DO GAME OVER
+CAMINHO_FUNDO2=os.path.join(
+    os.path.dirname(__file__),
+    "..",
+    "assets",
+    "images",
+    "fundo2.jpg"
+)
+
+fundo2=pygame.image.load(CAMINHO_FUNDO2).convert()
+
+# Ajusta a imagem para o tamanho da janela
+fundo2=pygame.transform.scale(fundo2,(LARGURA,ALTURA))
 
 # CARREGAMENTO DOS CORAÇÕES
 CAMINHO_CORACAO=os.path.join(
@@ -208,6 +229,11 @@ while rodando:
                         "y": fruta.y,
                         "inicio": pygame.time.get_ticks()
                     })
+
+                    # Chance de causar uma tremida ao cortar a fruta
+                    if random.random() < CHANCE_TREMIDA:
+                        tremendo=True
+                        inicio_tremida=pygame.time.get_ticks()
 
             # COLISÃO COM BOMBAS
             for bomba in bombas[:]:
@@ -329,6 +355,20 @@ while rodando:
             loops=1
         )
 
+    # ATUALIZAÇÃO DA TREMIDA
+    offset_x=0
+    offset_y=0
+
+    if tremendo:
+        tempo_tremida=pygame.time.get_ticks()-inicio_tremida
+
+        if tempo_tremida < DURACAO_TREMIDA:
+            offset_x=random.randint(-INTENSIDADE_TREMIDA,INTENSIDADE_TREMIDA)
+            offset_y=random.randint(-INTENSIDADE_TREMIDA,INTENSIDADE_TREMIDA)
+
+        else:
+            tremendo=False
+
     # ATUALIZAÇÃO DO RASTRO DO MOUSE
     agora=pygame.time.get_ticks()
 
@@ -340,7 +380,10 @@ while rodando:
     ]
 
     # DESENHO DO FUNDO
-    tela.blit(fundo,(0,0))
+    if jogo.game_over:
+        tela.blit(fundo2,(0,0))
+    else:
+        tela.blit(fundo,(offset_x,offset_y))
 
     # DESENHO DO RASTRO DO MOUSE
     if len(rastro_mouse)>1 and not tela_inicial and not jogo.game_over:
