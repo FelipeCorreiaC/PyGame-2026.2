@@ -17,8 +17,14 @@ class Explosao:
         self.y=y
 
         # Carrega a spritesheet
-        caminho_sprite=os.path.join(CAMINHO_IMAGES,"explosion.png")
-        spritesheet=pygame.image.load(caminho_sprite).convert_alpha()
+        caminho_sprite=os.path.join(
+            CAMINHO_IMAGES,
+            "explosion.png"
+        )
+
+        spritesheet=pygame.image.load(
+            caminho_sprite
+        ).convert_alpha()
 
         self.frames=[]
 
@@ -29,10 +35,11 @@ class Explosao:
         altura_frame=spritesheet.get_height()
 
         # Define um tamanho aleatório para a explosão
-        self.tamanho=random.randint(250,500)
+        self.tamanho=random.randint(180,250)
 
         # Separa a spritesheet em frames
         for frame_numero in range(quantidade_frames):
+
             frame=spritesheet.subsurface(
                 frame_numero*largura_frame,
                 0,
@@ -57,6 +64,7 @@ class Explosao:
         agora=pygame.time.get_ticks()
 
         if agora-self.tempo_ultimo_frame >= self.tempo_frame:
+
             self.frame_atual+=1
             self.tempo_ultimo_frame=agora
 
@@ -65,6 +73,11 @@ class Explosao:
 
     def desenhar(self, tela):
         if not self.finalizada:
+
             frame=self.frames[self.frame_atual]
-            retangulo=frame.get_rect(center=(int(self.x),int(self.y)))
+
+            retangulo=frame.get_rect(
+                center=(int(self.x),int(self.y))
+            )
+
             tela.blit(frame,retangulo)

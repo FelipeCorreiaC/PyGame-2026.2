@@ -46,10 +46,18 @@ TEMPO_BOMBA_MIN=3000
 TEMPO_BOMBA_MAX=6000
 
 # Agenda a primeira bomba
-pygame.time.set_timer(EVENTO_BOMBA,random.randint(TEMPO_BOMBA_MIN,TEMPO_BOMBA_MAX),loops=1)
+pygame.time.set_timer(
+    EVENTO_BOMBA,
+    random.randint(TEMPO_BOMBA_MIN,TEMPO_BOMBA_MAX),
+    loops=1
+)
 
 # Agenda a primeira fruta
-pygame.time.set_timer(EVENTO_FRUTA,random.randint(TEMPO_MIN,TEMPO_MAX),loops=1)
+pygame.time.set_timer(
+    EVENTO_FRUTA,
+    random.randint(TEMPO_MIN,TEMPO_MAX),
+    loops=1
+)
 
 # CONFIGURAÇÃO DA JANELA
 # Cria a janela do jogo
@@ -101,12 +109,20 @@ rodando=True
 # LOOP PRINCIPAL DO JOGO
 while rodando:
 
+    # Guarda o pedido de reinício até terminar os eventos deste quadro
+    reiniciar_solicitado=False
+
     # PROCESSAMENTO DE EVENTOS
     for evento in pygame.event.get():
 
         # Fecha o jogo
         if evento.type==pygame.QUIT:
             rodando=False
+
+        # A tecla R só solicita o reinício depois do game over
+        if evento.type==pygame.KEYDOWN and jogo.game_over:
+            if evento.key==pygame.K_r:
+                reiniciar_solicitado=True
 
         # Gera uma nova bomba (não gera mais após uma explosão)
         if evento.type==EVENTO_BOMBA and not jogo.game_over and not bomba_explodiu:
@@ -116,7 +132,10 @@ while rodando:
             bomba=Bomba(x,ALTURA+30)
             bombas.append(bomba)
 
-            proximo_tempo=random.randint(TEMPO_BOMBA_MIN,TEMPO_BOMBA_MAX)
+            proximo_tempo=random.randint(
+                TEMPO_BOMBA_MIN,
+                TEMPO_BOMBA_MAX
+            )
 
             pygame.time.set_timer(
                 EVENTO_BOMBA,
@@ -140,6 +159,7 @@ while rodando:
 
             # Verifica as bombas
             for bomba in bombas[:]:
+
                 if bomba.verificar_colisao(evento.pos):
 
                     # Indica que uma bomba foi atingida
@@ -152,6 +172,7 @@ while rodando:
 
                     # Cria explosões adicionais em posições aleatórias
                     for i in range(15):
+
                         x=random.randint(100,LARGURA-100)
                         y=random.randint(100,ALTURA-100)
 
@@ -184,6 +205,40 @@ while rodando:
                 proximo_tempo,
                 loops=1
             )
+
+    # REINÍCIO DA PARTIDA
+    # Os eventos antigos já foram processados antes de liberar a nova partida
+    if reiniciar_solicitado and rodando:
+
+        # Cancela lançamentos da partida anterior e limpa os que estavam na fila
+        pygame.time.set_timer(EVENTO_FRUTA,0)
+        pygame.time.set_timer(EVENTO_BOMBA,0)
+        pygame.event.clear([EVENTO_FRUTA,EVENTO_BOMBA])
+
+        # Limpa todos os objetos da partida anterior
+        frutas.clear()
+        bombas.clear()
+        explosoes.clear()
+
+        # Restaura o estado da explosão
+        bomba_explodiu=False
+        momento_explosao=0
+
+        # Restaura pontuação, vidas e game over
+        jogo.reiniciar()
+
+        # Agenda um novo lançamento de cada tipo a partir deste momento
+        pygame.time.set_timer(
+            EVENTO_FRUTA,
+            random.randint(TEMPO_MIN,TEMPO_MAX),
+            loops=1
+        )
+
+        pygame.time.set_timer(
+            EVENTO_BOMBA,
+            random.randint(TEMPO_BOMBA_MIN,TEMPO_BOMBA_MAX),
+            loops=1
+        )
 
     # DESENHA O FUNDO
     tela.blit(fundo,(0,0))
@@ -226,6 +281,7 @@ while rodando:
         # ATUALIZAÇÃO DAS EXPLOSÕES
         # Continuam animando mesmo com o resto congelado
         for explosao in explosoes[:]:
+
             explosao.atualizar()
 
             if explosao.finalizada:
@@ -233,6 +289,7 @@ while rodando:
 
         # Game Over quando as explosões terminarem OU quando o tempo máximo passar
         if bomba_explodiu:
+
             tempo_passado=pygame.time.get_ticks()-momento_explosao
 
             if len(explosoes)==0 or tempo_passado>=DURACAO_MAX_EXPLOSAO:
@@ -287,6 +344,12 @@ while rodando:
             (255,255,255)
         )
 
+        texto_reiniciar=fonte.render(
+            "Pressione R para jogar novamente",
+            True,
+            (255,255,255)
+        )
+
         tela.blit(
             texto_game_over,
             texto_game_over.get_rect(
@@ -297,7 +360,14 @@ while rodando:
         tela.blit(
             texto_final,
             texto_final.get_rect(
-                center=(LARGURA//2,ALTURA//2+50)
+                center=(LARGURA//2,ALTURA//2+60)
+            )
+        )
+
+        tela.blit(
+            texto_reiniciar,
+            texto_reiniciar.get_rect(
+                center=(LARGURA//2,ALTURA//2+120)
             )
         )
 
