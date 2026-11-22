@@ -26,6 +26,7 @@ frutas=[]
 bombas=[]
 explosoes=[]
 bomba_explodiu=False
+feedbacks_pontos=[]
 
 # Momento (em ms) em que a bomba explodiu e tempo máximo permitido
 # para a animação. Garante o game over mesmo que a explosão nunca termine.
@@ -51,6 +52,17 @@ TEMPO_BOMBA_MAX=6000
 # CONFIGURAÇÃO DA JANELA
 # Cria a janela do jogo
 tela=pygame.display.set_mode((LARGURA,ALTURA))
+
+CAMINHO_FONTE=os.path.join(
+    os.path.dirname(__file__),
+    "..",
+    "assets",
+    "fonts",
+    "game_over.ttf"
+)
+
+fonte_game_over=pygame.font.Font(CAMINHO_FONTE,200)
+fonte_pontuacao_final=pygame.font.Font(CAMINHO_FONTE,100)
 
 # IMAGEM DE FUNDO
 CAMINHO_FUNDO=os.path.join(
@@ -91,13 +103,15 @@ clock=pygame.time.Clock()
 
 # Fonte usada na interface (criada uma única vez)
 fonte=pygame.font.SysFont("Arial",46)
-fonte_titulo=pygame.font.SysFont("Arial",60)
+fonte_game_over=pygame.font.Font(CAMINHO_FONTE,300)
+fonte_titulo=pygame.font.Font(CAMINHO_FONTE,200)
 fonte_instrucoes=pygame.font.SysFont("Arial",36)
+fonte_feedback=pygame.font.SysFont("Arial",30)
 
 instrucoes=[
     "Passe o mouse sobre as frutas para cortá-las.",
     "Cada fruta cortada vale 1 ponto.",
-    "Você tem 3 vidas: perde uma a cada fruta que cair.",
+    "Voce tem 3 vidas: perde uma a cada fruta que cair.",
     "Evite as bombas: tocar nelas encerra a partida."
 ]
 
@@ -165,6 +179,13 @@ while rodando:
 
                     # Adiciona 1 ponto pela fruta cortada
                     jogo.adicionar_pontos(1)
+
+                    # Cria o feedback visual da pontuação
+                    feedbacks_pontos.append({
+                        "x": fruta.x,
+                        "y": fruta.y,
+                        "inicio": pygame.time.get_ticks()
+                    })
 
             # Verifica as bombas
             for bomba in bombas[:]:
@@ -242,6 +263,7 @@ while rodando:
         frutas.clear()
         bombas.clear()
         explosoes.clear()
+        feedbacks_pontos.clear()
 
         # Restaura o estado da explosão
         bomba_explodiu=False
@@ -304,6 +326,34 @@ while rodando:
                 posicao_atual,
                 espessura
             )
+
+    # FEEDBACK VISUAL DA PONTUAÇÃO
+    agora=pygame.time.get_ticks()
+
+    for feedback in feedbacks_pontos[:]:
+
+        tempo_passado=agora-feedback["inicio"]
+
+        # Remove o feedback depois de 700 ms
+        if tempo_passado >= 700:
+            feedbacks_pontos.remove(feedback)
+            continue
+
+        # Faz o texto subir
+        y=feedback["y"]-(tempo_passado*0.05)
+
+        texto_feedback=fonte_feedback.render(
+            "+1",
+            True,
+            (255,255,255)
+        )
+
+        tela.blit(
+            texto_feedback,
+            texto_feedback.get_rect(
+                center=(int(feedback["x"]),int(y))
+            )
+        )
 
     # ATUALIZAÇÃO DOS OBJETOS
     if not tela_inicial and not jogo.game_over:
@@ -380,11 +430,11 @@ while rodando:
 
         y_instrucao=290
         for instrucao in instrucoes:
-            texto_instrucao=fonte_instrucoes.render(instrucao,True,(255,255,255))
+            texto_instrucao=fonte_pontuacao_final.render(instrucao,True,(255,255,255))
             tela.blit(texto_instrucao,texto_instrucao.get_rect(center=(LARGURA//2,y_instrucao)))
             y_instrucao+=45
 
-        texto_iniciar=fonte_instrucoes.render("Pressione ENTER para jogar",True,(120,230,120))
+        texto_iniciar=fonte_pontuacao_final.render("Pressione ENTER para jogar",True,(120,230,120))
         tela.blit(texto_iniciar,texto_iniciar.get_rect(center=(LARGURA//2,520)))
 
     elif not jogo.game_over:
@@ -412,19 +462,19 @@ while rodando:
     else:
 
         # Exibe apenas as informações de Game Over
-        texto_game_over=fonte.render(
+        texto_game_over=fonte_game_over.render(
             "GAME OVER",
             True,
             (255,255,255)
         )
 
-        texto_final=fonte.render(
-            f"Pontuação final: {jogo.pontuacao}",
+        texto_final=fonte_pontuacao_final.render(
+            f"PONTUAÇAO FINAL: {jogo.pontuacao}",
             True,
             (255,255,255)
         )
 
-        texto_reiniciar=fonte.render(
+        texto_reiniciar=fonte_pontuacao_final.render(
             "Pressione R para jogar novamente",
             True,
             (255,255,255)
@@ -433,21 +483,21 @@ while rodando:
         tela.blit(
             texto_game_over,
             texto_game_over.get_rect(
-                center=(LARGURA//2,ALTURA//2)
+                center=(LARGURA//2,250)
             )
         )
 
         tela.blit(
             texto_final,
             texto_final.get_rect(
-                center=(LARGURA//2,ALTURA//2+60)
+                center=(LARGURA//2,350)
             )
         )
 
         tela.blit(
             texto_reiniciar,
             texto_reiniciar.get_rect(
-                center=(LARGURA//2,ALTURA//2+120)
+                center=(LARGURA//2,650)
             )
         )
 
