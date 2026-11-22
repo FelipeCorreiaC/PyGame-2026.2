@@ -108,7 +108,7 @@ tela_inicial=True
 
 # RASTRO DO MOUSE
 rastro_mouse=[]
-TAMANHO_RASTRO=10
+DURACAO_RASTRO=300
 
 # LOOP PRINCIPAL DO JOGO
 while rodando:
@@ -152,12 +152,9 @@ while rodando:
         # DETECÇÃO DE CORTE COM O MOUSE
         # Bloqueada assim que uma bomba explode
         if evento.type==pygame.MOUSEMOTION and not tela_inicial and not jogo.game_over and not bomba_explodiu:
-            # Adiciona a posição atual ao rastro do mouse
-            rastro_mouse.append(evento.pos)
 
-            # Mantém apenas as últimas posições
-            if len(rastro_mouse) > TAMANHO_RASTRO:
-                rastro_mouse.pop(0)
+            # Adiciona a posição atual e o momento ao rastro do mouse
+            rastro_mouse.append((evento.pos,pygame.time.get_ticks()))
 
             # Verifica se o mouse passou sobre alguma fruta
             for fruta in frutas[:]:
@@ -267,18 +264,46 @@ while rodando:
             loops=1
         )
 
+    # Remove pontos antigos do rastro
+    agora=pygame.time.get_ticks()
+
+    rastro_mouse=[
+        ponto for ponto in rastro_mouse
+        if agora-ponto[1] < DURACAO_RASTRO
+    ]   
+
     # DESENHA O FUNDO
     tela.blit(fundo,(0,0))
 
     # DESENHA O RASTRO DO MOUSE
-    if len(rastro_mouse) > 1:
-        pygame.draw.lines(
-            tela,
-            (255,255,255),
-            False,
-            rastro_mouse,
-            6
-        )
+    if len(rastro_mouse) > 1 and not tela_inicial and not jogo.game_over:
+
+        for i in range(1,len(rastro_mouse)):
+
+            posicao_anterior=rastro_mouse[i-1][0]
+            posicao_atual=rastro_mouse[i][0]
+
+            idade=agora-rastro_mouse[i][1]
+
+            # Quanto mais antigo, mais escuro
+            intensidade=max(
+                0,
+                255-int(255*(idade/DURACAO_RASTRO))
+            )
+
+            # O início fica fino e a ponta fica mais grossa
+            espessura=max(
+                2,
+                int(12*(i/len(rastro_mouse)))
+            )
+
+            pygame.draw.line(
+                tela,
+                (intensidade,intensidade,intensidade),
+                posicao_anterior,
+                posicao_atual,
+                espessura
+            )
 
     # ATUALIZAÇÃO DOS OBJETOS
     if not tela_inicial and not jogo.game_over:
