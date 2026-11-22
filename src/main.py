@@ -18,6 +18,7 @@ jogo = Jogo()
 # Define as dimensões da janela
 LARGURA=1280
 ALTURA=720
+NOME_DO_JOGO="Jogo das Frutas"
 
 # LISTA DE FRUTAS
 # Armazena todas as frutas ou bombas ativas na tela
@@ -45,19 +46,7 @@ TEMPO_MAX=1800
 TEMPO_BOMBA_MIN=3000
 TEMPO_BOMBA_MAX=6000
 
-# Agenda a primeira bomba
-pygame.time.set_timer(
-    EVENTO_BOMBA,
-    random.randint(TEMPO_BOMBA_MIN,TEMPO_BOMBA_MAX),
-    loops=1
-)
-
-# Agenda a primeira fruta
-pygame.time.set_timer(
-    EVENTO_FRUTA,
-    random.randint(TEMPO_MIN,TEMPO_MAX),
-    loops=1
-)
+# Os primeiros lançamentos serão agendados somente ao iniciar com Enter
 
 # CONFIGURAÇÃO DA JANELA
 # Cria a janela do jogo
@@ -95,22 +84,33 @@ coracao_vazio=pygame.image.load(
 ).convert_alpha()
 
 # Define o título
-pygame.display.set_caption("NOME DO JOGO")
+pygame.display.set_caption(NOME_DO_JOGO)
 
 # Controla a taxa de atualização
 clock=pygame.time.Clock()
 
 # Fonte usada na interface (criada uma única vez)
 fonte=pygame.font.SysFont("Arial",46)
+fonte_titulo=pygame.font.SysFont("Arial",60)
+fonte_instrucoes=pygame.font.SysFont("Arial",36)
+
+instrucoes=[
+    "Passe o mouse sobre as frutas para cortá-las.",
+    "Cada fruta cortada vale 1 ponto.",
+    "Você tem 3 vidas: perde uma a cada fruta que cair.",
+    "Evite as bombas: tocar nelas encerra a partida."
+]
 
 # Mantém o jogo em execução
 rodando=True
+# Mostra as instruções antes de começar a primeira partida
+tela_inicial=True
 
 # LOOP PRINCIPAL DO JOGO
 while rodando:
 
-    # Guarda o pedido de reinício até terminar os eventos deste quadro
-    reiniciar_solicitado=False
+    # Guarda o pedido de início ou reinício até terminar os eventos deste quadro
+    iniciar_solicitado=False
 
     # PROCESSAMENTO DE EVENTOS
     for evento in pygame.event.get():
@@ -119,13 +119,15 @@ while rodando:
         if evento.type==pygame.QUIT:
             rodando=False
 
-        # A tecla R só solicita o reinício depois do game over
-        if evento.type==pygame.KEYDOWN and jogo.game_over:
-            if evento.key==pygame.K_r:
-                reiniciar_solicitado=True
+        # Enter inicia na tela inicial; R reinicia depois do game over
+        if evento.type==pygame.KEYDOWN:
+            if tela_inicial and evento.key==pygame.K_RETURN:
+                iniciar_solicitado=True
+            elif not tela_inicial and jogo.game_over and evento.key==pygame.K_r:
+                iniciar_solicitado=True
 
         # Gera uma nova bomba (não gera mais após uma explosão)
-        if evento.type==EVENTO_BOMBA and not jogo.game_over and not bomba_explodiu:
+        if evento.type==EVENTO_BOMBA and not tela_inicial and not jogo.game_over and not bomba_explodiu:
 
             x=random.randint(200,LARGURA-200)
 
@@ -145,7 +147,7 @@ while rodando:
 
         # DETECÇÃO DE CORTE COM O MOUSE
         # Bloqueada assim que uma bomba explode
-        if evento.type==pygame.MOUSEMOTION and not jogo.game_over and not bomba_explodiu:
+        if evento.type==pygame.MOUSEMOTION and not tela_inicial and not jogo.game_over and not bomba_explodiu:
 
             # Verifica se o mouse passou sobre alguma fruta
             for fruta in frutas[:]:
@@ -185,7 +187,7 @@ while rodando:
                     break
 
         # Gera uma nova fruta (não gera mais após uma explosão)
-        if evento.type==EVENTO_FRUTA and not jogo.game_over and not bomba_explodiu:
+        if evento.type==EVENTO_FRUTA and not tela_inicial and not jogo.game_over and not bomba_explodiu:
 
             # Sorteia a posição horizontal
             x=random.randint(200,LARGURA-200)
@@ -206,9 +208,9 @@ while rodando:
                 loops=1
             )
 
-    # REINÍCIO DA PARTIDA
-    # Os eventos antigos já foram processados antes de liberar a nova partida
-    if reiniciar_solicitado and rodando:
+    # INÍCIO OU REINÍCIO DA PARTIDA
+    # Reutiliza a preparação para o Enter da tela inicial e o R do game over
+    if iniciar_solicitado and rodando:
 
         # Cancela lançamentos da partida anterior e limpa os que estavam na fila
         pygame.time.set_timer(EVENTO_FRUTA,0)
@@ -226,6 +228,7 @@ while rodando:
 
         # Restaura pontuação, vidas e game over
         jogo.reiniciar()
+        tela_inicial=False
 
         # Agenda um novo lançamento de cada tipo a partir deste momento
         pygame.time.set_timer(
@@ -244,7 +247,7 @@ while rodando:
     tela.blit(fundo,(0,0))
 
     # ATUALIZAÇÃO DOS OBJETOS
-    if not jogo.game_over:
+    if not tela_inicial and not jogo.game_over:
 
         # Frutas e bombas só se movem se nenhuma bomba explodiu
         # (quando explode, a cena fica congelada e só as explosões animam)
@@ -298,16 +301,33 @@ while rodando:
 
     # DESENHO DOS OBJETOS
     # Continua desenhando após o game over para manter a cena parada
-    for fruta in frutas:
-        fruta.desenhar(tela)
+    if not tela_inicial:
+        for fruta in frutas:
+            fruta.desenhar(tela)
 
-    for bomba in bombas:
-        bomba.desenhar(tela)
+        for bomba in bombas:
+            bomba.desenhar(tela)
 
-    for explosao in explosoes:
-        explosao.desenhar(tela)
+        for explosao in explosoes:
+            explosao.desenhar(tela)
 
-    if not jogo.game_over:
+    if tela_inicial:
+        # Painel simples para facilitar a leitura sobre a imagem de fundo
+        pygame.draw.rect(tela,(30,30,30),(140,110,1000,480))
+
+        texto_titulo=fonte_titulo.render(NOME_DO_JOGO,True,(255,255,255))
+        tela.blit(texto_titulo,texto_titulo.get_rect(center=(LARGURA//2,180)))
+
+        y_instrucao=290
+        for instrucao in instrucoes:
+            texto_instrucao=fonte_instrucoes.render(instrucao,True,(255,255,255))
+            tela.blit(texto_instrucao,texto_instrucao.get_rect(center=(LARGURA//2,y_instrucao)))
+            y_instrucao+=45
+
+        texto_iniciar=fonte_instrucoes.render("Pressione ENTER para jogar",True,(120,230,120))
+        tela.blit(texto_iniciar,texto_iniciar.get_rect(center=(LARGURA//2,520)))
+
+    elif not jogo.game_over:
 
         # EXIBIÇÃO DA PONTUAÇÃO
         texto_pontos=fonte.render(
