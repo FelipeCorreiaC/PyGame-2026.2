@@ -7,9 +7,11 @@ class Jogo:
         self.game_over=False
 
     def adicionar_pontos(self, pontos):
-        self.pontuacao += pontos
+        if not self.game_over:
+            self.pontuacao += pontos
 
     def perder_vida(self):
-        self.vidas -= 1
-        if self.vidas <= 0:
-            self.game_over = True
+        if not self.game_over and self.vidas > 0:
+            self.vidas -= 1
+            if self.vidas == 0:
+                self.game_over = True

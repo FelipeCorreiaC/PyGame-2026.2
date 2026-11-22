@@ -75,18 +75,19 @@ while rodando:
         # DETECÇÃO DE CORTE COM O MOUSE
         if evento.type == pygame.MOUSEMOTION and not jogo.game_over:
             # Verifica se o mouse passou sobre alguma fruta
-            for fruta in frutas:
+            for fruta in frutas[:]:
                 if fruta.verificar_corte(evento.pos):
                     frutas.remove(fruta)
 
-                    # Adiciona 10 pontos pela fruta cortada
+                    # Adiciona 1 ponto pela fruta cortada
                     jogo.adicionar_pontos(1)
 
             # Verifica as bombas
-            for bomba in bombas:
+            for bomba in bombas[:]:
                 if bomba.verificar_colisao(evento.pos):
                     bombas.remove(bomba)
                     jogo.game_over = True
+                    break
 
         # Gera uma nova fruta
         if evento.type==EVENTO_FRUTA and not jogo.game_over:
@@ -109,27 +110,36 @@ while rodando:
     # LIMPEZA DA TELA
     tela.fill((30, 30, 30))
 
-    # ATUALIZAÇÃO E DESENHO DAS FRUTAS
-    for fruta in frutas:
-        # Atualiza o movimento
-        fruta.atualizar()
+    # ATUALIZAÇÃO DOS OBJETOS
+    if not jogo.game_over:
+        # Percorre uma cópia para remover frutas com segurança
+        for fruta in frutas[:]:
+            fruta.atualizar()
 
-        # Desenha a fruta
+            if fruta.y - fruta.raio > ALTURA:
+                frutas.remove(fruta)
+                jogo.perder_vida()
+
+                # Interrompe o laço se esta era a última vida
+                if jogo.game_over:
+                    break
+
+        # A partida pode ter terminado durante a atualização das frutas
+        if not jogo.game_over:
+            for bomba in bombas[:]:
+                bomba.atualizar()
+
+                # Se a bomba cair, apenas remove
+                if bomba.y - bomba.raio > ALTURA:
+                    bombas.remove(bomba)
+
+    # DESENHO DOS OBJETOS
+    # Continua desenhando após o game over para manter a cena parada
+    for fruta in frutas:
         fruta.desenhar(tela)
 
-        # Remove frutas que saíram pela parte inferior
-        if fruta.y-fruta.raio > ALTURA:
-            frutas.remove(fruta)
-            jogo.perder_vida()
-
-    # ATUALIZAÇÃO E DESENHO DAS BOMBAS
     for bomba in bombas:
-        bomba.atualizar()
         bomba.desenhar(tela)
-
-        # Se a bomba cair, apenas remove
-        if bomba.y - bomba.raio > ALTURA:
-            bombas.remove(bomba)
 
     # Fonte usada na interface
     fonte = pygame.font.SysFont("Arial", 36)
