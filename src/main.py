@@ -291,12 +291,20 @@ while rodando:
 
             # DIFICULDADE PROGRESSIVA
 
-            # Reduz o intervalo máximo entre frutas
-            # conforme a pontuação aumenta
-            if jogo.pontuacao>50:
+            # Reduz o intervalo máximo entre frutas conforme a pontuação aumenta
+            if jogo.pontuacao>=100:
+                tempo_max_fruta=350
+
+            elif jogo.pontuacao>=80:
                 tempo_max_fruta=400
 
+            elif jogo.pontuacao>=60:
+                tempo_max_fruta=500
+
             elif jogo.pontuacao>=50:
+                tempo_max_fruta=600
+
+            elif jogo.pontuacao>=40:
                 tempo_max_fruta=700
 
             elif jogo.pontuacao>=30:
