@@ -39,8 +39,8 @@ EVENTO_FRUTA=pygame.USEREVENT+1
 EVENTO_BOMBA=pygame.USEREVENT+2
 
 # Intervalo mínimo e máximo inicial (milissegundos) (frutas)
-TEMPO_MIN=500
-TEMPO_MAX=1800
+TEMPO_MIN=300
+TEMPO_MAX=1500
 
 # Intervalo mínimo e máximo (milissegundos) (bombas)
 TEMPO_BOMBA_MIN=3000
@@ -199,10 +199,16 @@ while rodando:
             frutas.append(fruta)
 
             # Reduz a espera máxima conforme a pontuação, mantendo o mínimo
-            if jogo.pontuacao>=20:
-                tempo_max_fruta=1200
+            if jogo.pontuacao>50:
+                tempo_max_fruta=400
+            elif jogo.pontuacao>=50:
+                tempo_max_fruta=700
+            elif jogo.pontuacao>=30:
+                tempo_max_fruta=800
+            elif jogo.pontuacao>=20:
+                tempo_max_fruta=1000
             elif jogo.pontuacao>=10:
-                tempo_max_fruta=1500
+                tempo_max_fruta=1200
             else:
                 tempo_max_fruta=TEMPO_MAX
 
