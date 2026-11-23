@@ -10,7 +10,7 @@ Após instalar as dependências descritas abaixo, execute o arquivo principal do
 
 ## Vídeo de apresentação do projeto:
 
-[link]
+[https://youtu.be/VYAClpFo5zQ?is=nb_Q1TXFCHp0Rjjn]
 
 ## Descrição:
 
