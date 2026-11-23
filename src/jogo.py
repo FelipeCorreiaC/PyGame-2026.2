@@ -9,12 +9,12 @@ class Jogo:
         self.vidas=3
         self.game_over=False
 
-    def adicionar_pontos(self, pontos):
+    def adicionar_pontos(self,pontos):
         if not self.game_over:
             self.pontuacao+=pontos
 
     def perder_vida(self):
-        if not self.game_over and self.vidas > 0:
+        if not self.game_over and self.vidas>0:
             self.vidas-=1
 
             if self.vidas==0:
