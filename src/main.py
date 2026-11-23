@@ -210,6 +210,9 @@ while rodando:
             bomba=Bomba(x,ALTURA+30)
             bombas.append(bomba)
 
+            # Inicia o som do pavio enquanto houver bomba na tela
+            sons.iniciar_pavio()
+
             # Sorteia quando a próxima bomba será lançada
             proximo_tempo=random.randint(
                 TEMPO_BOMBA_MIN,
@@ -298,6 +301,9 @@ while rodando:
 
                     # Remove a bomba atingida
                     bombas.remove(bomba)
+
+                    # A explosão interrompe o som do pavio
+                    sons.parar_pavio()
 
                     break
 
@@ -535,6 +541,10 @@ while rodando:
                     # Bombas que saem da tela apenas desaparecem
                     if bomba.y-bomba.raio > ALTURA:
                         bombas.remove(bomba)
+
+                        # Para o pavio quando não houver mais bombas
+                        if len(bombas)==0:
+                            sons.parar_pavio()
 
         # ATUALIZAÇÃO DAS EXPLOSÕES
 
