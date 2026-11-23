@@ -12,6 +12,9 @@ from explosao import Explosao
 # Importa o controle dos efeitos de corte, explosão e fim de jogo.
 from sons import Sons
 
+# Importa o controle da trilha de fundo, separado dos efeitos sonoros.
+from musica import Musica
+
 # Configura o áudio antes de iniciar o Pygame: 44100 Hz, 16 bits, estéreo.
 # O buffer de 512 amostras permite uma resposta curta aos movimentos do mouse.
 pygame.mixer.pre_init(44100, -16, 2, 512)
@@ -21,6 +24,9 @@ pygame.init()
 
 # Carrega os três efeitos uma única vez para reutilizá-los durante as partidas.
 sons = Sons()
+
+# Prepara a musica uma vez; ela comeca somente quando a partida for iniciada.
+musica = Musica()
 
 # Objeto responsável pelo estado da partida
 jogo=Jogo()
@@ -273,6 +279,8 @@ while rodando:
                     momento_explosao=pygame.time.get_ticks()
 
                     # Toca uma explosão por bomba atingida, mesmo criando vários efeitos visuais.
+                    # Interrompe a trilha para destacar o som do impacto.
+                    musica.parar()
                     sons.tocar("explosao")
 
                     # Explosão principal na posição da bomba
@@ -357,6 +365,9 @@ while rodando:
         # Interrompe sons antigos ao começar pelo Enter ou reiniciar pela tecla R.
         sons.parar()
 
+        # ENTER e R comecam a trilha do inicio, em repeticao e com volume baixo.
+        musica.iniciar()
+
         # Cancela os temporizadores da partida anterior
         pygame.time.set_timer(EVENTO_FRUTA,0)
         pygame.time.set_timer(EVENTO_BOMBA,0)
@@ -372,6 +383,11 @@ while rodando:
         bombas.clear()
         explosoes.clear()
         feedbacks_pontos.clear()
+
+        # Limpa os efeitos da partida anterior para reiniciar sem rastro ou tremida.
+        rastro_mouse.clear()
+        tremendo=False
+        inicio_tremida=0
 
         # Restaura o estado da explosão
         bomba_explodiu=False
@@ -548,6 +564,8 @@ while rodando:
     # A comparação evita repetir o som a cada quadro da tela de Game Over.
     # Vale tanto para a perda das três vidas quanto para o fim da explosão.
     if jogo.game_over and not game_over_anterior:
+        # Tambem encerra a trilha quando a derrota acontece pela perda das tres vidas.
+        musica.parar()
         sons.tocar("fim_de_jogo")
 
     # DESENHO DOS OBJETOS
