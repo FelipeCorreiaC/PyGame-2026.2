@@ -2,6 +2,9 @@ import pygame
 import os
 import random
 
+# Reaproveita a spritesheet e os quadros preparados para cada tamanho de explosão.
+from imagens import quadros_explosao
+
 # Caminho para a spritesheet da explosão
 CAMINHO_IMAGES=os.path.join(
     os.path.dirname(__file__),
@@ -16,43 +19,25 @@ class Explosao:
         self.x=x
         self.y=y
 
-        # Carrega a spritesheet
+        # Localiza a spritesheet que será reaproveitada pelo módulo de imagens.
         caminho_sprite=os.path.join(
             CAMINHO_IMAGES,
             "explosion.png"
         )
 
-        spritesheet=pygame.image.load(
-            caminho_sprite
-        ).convert_alpha()
-
-        self.frames=[]
-
         # Quantidade de frames da spritesheet
         quantidade_frames=12
-
-        largura_frame=spritesheet.get_width()//quantidade_frames
-        altura_frame=spritesheet.get_height()
 
         # Define um tamanho aleatório para a explosão
         self.tamanho=random.randint(180,250)
 
-        # Separa a spritesheet em frames
-        for frame_numero in range(quantidade_frames):
-
-            frame=spritesheet.subsurface(
-                frame_numero*largura_frame,
-                0,
-                largura_frame,
-                altura_frame
-            )
-
-            frame=pygame.transform.scale(
-                frame,
-                (self.tamanho,self.tamanho)
-            )
-
-            self.frames.append(frame)
+        # Explosões do mesmo tamanho compartilham os quadros já preparados.
+        # Apenas consultamos as imagens, sem alterar a sequência ou suas superfícies.
+        self.frames=quadros_explosao(
+            caminho_sprite,
+            quantidade_frames,
+            self.tamanho
+        )
 
         # Controle da animação
         self.frame_atual=0

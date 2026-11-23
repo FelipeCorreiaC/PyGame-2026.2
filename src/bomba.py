@@ -2,6 +2,9 @@ import pygame
 import random
 import os
 
+# Reaproveita imagens já carregadas e redimensionadas entre as bombas.
+from imagens import imagem_redimensionada
+
 # Caminho para a pasta de imagens
 CAMINHO_IMAGES=os.path.join(os.path.dirname(__file__), "..", "assets", "images", "sprites_bombas")
 
@@ -25,8 +28,13 @@ class Bomba:
         sprite=random.choice(SPRITES_BOMBAS)
         caminho_sprite=os.path.join(CAMINHO_IMAGES, sprite)
 
-        self.imagem=pygame.image.load(caminho_sprite).convert_alpha()
-        self.imagem=pygame.transform.scale(self.imagem,(self.raio*2,self.raio*2))
+        # Bombas com o mesmo sprite e tamanho compartilham a imagem preparada.
+        # Não alteramos essa superfície; a rotação cria uma nova imagem ao desenhar.
+        self.imagem=imagem_redimensionada(
+            caminho_sprite,
+            self.raio*2,
+            self.raio*2
+        )
 
         # Velocidade vertical
         self.velocidade_y=random.uniform(-23, -19)

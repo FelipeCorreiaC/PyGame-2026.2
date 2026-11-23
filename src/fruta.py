@@ -3,6 +3,9 @@ import pygame
 import random
 import os
 
+# Reaproveita imagens já carregadas e redimensionadas entre as frutas.
+from imagens import imagem_redimensionada
+
 # Caminho para a pasta de imagens
 CAMINHO_IMAGES=os.path.join(os.path.dirname(__file__), "..", "assets", "images", "sprites_frutas")
 
@@ -26,22 +29,24 @@ class Fruta:
         self.gravidade=0.5
 
         # Escolhe aleatoriamente o sprite da fruta
-        # Escolhe aleatoriamente o sprite da fruta
         sprite, sprite_cortado=random.choice(SPRITES_FRUTAS)
 
         caminho_sprite=os.path.join(CAMINHO_IMAGES, sprite)
         caminho_sprite_cortado=os.path.join(CAMINHO_IMAGES, sprite_cortado)
 
-        self.imagem=pygame.image.load(caminho_sprite).convert_alpha()
-        self.imagem=pygame.transform.scale(
-            self.imagem,
-            (self.raio*2,self.raio*2)
+        # Imagens do mesmo arquivo e tamanho são compartilhadas entre objetos.
+        # Não alteramos essas superfícies; a rotação cria uma nova imagem ao desenhar.
+        self.imagem=imagem_redimensionada(
+            caminho_sprite,
+            self.raio*2,
+            self.raio*2
         )
 
-        self.imagem_cortada=pygame.image.load(caminho_sprite_cortado).convert_alpha()
-        self.imagem_cortada=pygame.transform.scale(
-            self.imagem_cortada,
-            (int(self.raio*2.4),int(self.raio*2.4))
+        # Reaproveita também a versão cortada, mantendo seu tamanho original no jogo.
+        self.imagem_cortada=imagem_redimensionada(
+            caminho_sprite_cortado,
+            int(self.raio*2.4),
+            int(self.raio*2.4)
         )
 
         # Define a rotação da fruta
