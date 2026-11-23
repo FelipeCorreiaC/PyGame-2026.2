@@ -9,8 +9,18 @@ from jogo import Jogo
 from bomba import Bomba
 from explosao import Explosao
 
+# Importa o controle dos efeitos de corte, explosão e fim de jogo.
+from sons import Sons
+
+# Configura o áudio antes de iniciar o Pygame: 44100 Hz, 16 bits, estéreo.
+# O buffer de 512 amostras permite uma resposta curta aos movimentos do mouse.
+pygame.mixer.pre_init(44100, -16, 2, 512)
+
 # INICIALIZAÇÃO DO PYGAME E CONFIGURAÇÕES GERAIS
 pygame.init()
+
+# Carrega os três efeitos uma única vez para reutilizá-los durante as partidas.
+sons = Sons()
 
 # Objeto responsável pelo estado da partida
 jogo=Jogo()
@@ -164,6 +174,9 @@ while rodando:
     # o processamento dos eventos deste quadro
     iniciar_solicitado=False
 
+    # Guarda como a partida começou este quadro para detectar uma nova derrota.
+    game_over_anterior = jogo.game_over
+
     # PROCESSAMENTO DE EVENTOS
     for evento in pygame.event.get():
 
@@ -225,6 +238,9 @@ while rodando:
                     # Cada fruta cortada vale 1 ponto
                     jogo.adicionar_pontos(1)
 
+                    # Só toca no primeiro corte da fruta, junto com o ponto recebido.
+                    sons.tocar("corte")
+
                     # Cria o "+1" na posição da fruta
                     feedbacks_pontos.append({
                         "x": fruta.x,
@@ -255,6 +271,9 @@ while rodando:
                     # Inicia o estado de explosão
                     bomba_explodiu=True
                     momento_explosao=pygame.time.get_ticks()
+
+                    # Toca uma explosão por bomba atingida, mesmo criando vários efeitos visuais.
+                    sons.tocar("explosao")
 
                     # Explosão principal na posição da bomba
                     explosao=Explosao(bomba.x,bomba.y)
@@ -334,6 +353,9 @@ while rodando:
 
     # INÍCIO OU REINÍCIO DA PARTIDA
     if iniciar_solicitado and rodando:
+
+        # Interrompe sons antigos ao começar pelo Enter ou reiniciar pela tecla R.
+        sons.parar()
 
         # Cancela os temporizadores da partida anterior
         pygame.time.set_timer(EVENTO_FRUTA,0)
@@ -521,6 +543,12 @@ while rodando:
                 explosoes.clear()
                 rastro_mouse.clear()
                 jogo.game_over=True
+
+    # Toca o aviso apenas no quadro em que a partida passa a estar encerrada.
+    # A comparação evita repetir o som a cada quadro da tela de Game Over.
+    # Vale tanto para a perda das três vidas quanto para o fim da explosão.
+    if jogo.game_over and not game_over_anterior:
+        sons.tocar("fim_de_jogo")
 
     # DESENHO DOS OBJETOS
 
