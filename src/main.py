@@ -166,6 +166,9 @@ rodando=True
 # Controla se o jogador ainda está na tela de instruções
 tela_inicial=True
 
+# Tela cheia
+tela_cheia=False
+
 # RASTRO DO MOUSE
 # Armazena posição e momento dos últimos movimentos do mouse
 rastro_mouse=[]
@@ -193,6 +196,19 @@ while rodando:
         # ENTER inicia a primeira partida
         # R inicia uma nova partida após o Game Over
         if evento.type==pygame.KEYDOWN:
+
+            if evento.key==pygame.K_F11:
+                tela_cheia=not tela_cheia
+
+                if tela_cheia:
+                    tela=pygame.display.set_mode(
+                        (LARGURA,ALTURA),
+                        pygame.FULLSCREEN
+                    )
+                else:
+                    tela=pygame.display.set_mode(
+                        (LARGURA,ALTURA)
+                    )
 
             if tela_inicial and evento.key==pygame.K_RETURN:
                 iniciar_solicitado=True
